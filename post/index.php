@@ -22,6 +22,13 @@ $sessionDefaults = [
     'networkState' => 1,
     'AP' => 0,
     'pushDelay' => 550,
+    'dClicReactivity' => 251,
+    'faderSpeed' => 157,
+    'profile' => 'default',
+    'apName' => 'footswitch',
+    'hostname' => 'footswitch',
+    'lastSSID' => 'intervalmix1',
+    'startupUpdate' => 1,
     'nextStepQueue' => [],
     'progress' => 0,
     'discovery' => 'manual',
@@ -99,6 +106,18 @@ $setSaveButton = '{"setSaveButton":"1"}';
 
 require __DIR__ . '/fixtures.php';
 
+// The control panel is driven by this catalogue instead of duplicating the
+// firmware command list in JavaScript. Keep it aligned with parseJsonInput().
+$commandCatalog = ['version' => 1, 'commands' => []];
+$catalogPath = __DIR__ . '/commands.json';
+if (is_file($catalogPath)) {
+    $catalog = json_decode((string)file_get_contents($catalogPath), true);
+    if (is_array($catalog) && isset($catalog['commands']) && is_array($catalog['commands'])) {
+        $commandCatalog = $catalog;
+    }
+}
+$commandCatalog['languages'] = $availableLanguages;
+
 $startup = jsonEncode([
     'langs' => $availableLanguages,
     'maxPOSTsize' => 4096,
@@ -114,48 +133,35 @@ $startup = jsonEncode([
 $fullConfig = '{'.getDataSets().','.getIFConfig().','.$jsonInput.','.$interfaces.','.getConnectivityConfig().',"firmware":"https://infrafast.fr/fwupdate/0.16.tgz",'.$skeletons.','.getSystem().','.$banks.'}';
 
 
-function getSystem(){
-    return ' 
-        "system": {
-          "pushDelay": "852",
-          "dClicReactivity": "251",
-          "profile": "default",
-          "apName": "footswitch",
-          "lastSSID": "intervalmix1",
-          "lang": "'.$_SESSION['lang'].'",
-          "faderSpeed": "157",
-          "ssid": {
-            "intervalmix1": "CHANGE_ME_WIFI_PASSWORD",
-            "infrafast": "CHANGE_ME_WIFI_PASSWORD",
-            "intervalmix": "CHANGE_ME_WIFI_PASSWORD",
-            "IpTch": "CHANGE_ME_WIFI_PASSWORD"
-          },
-          "buttonsAssignements": {
-            "left": [3,1,5,8],
-            "right": [2,1,4,9],
-            "tap": [6,7,8,10]
-          },
-          "shortcuts": {
-            "shortcut1": {
-              "type": "jump",
-              "properties": ["/strip/id/midi4,strip02"]
-            },
-            "shortcut2": {
-              "type": "macro",
-              "properties": [
-                "/action/FF",
-                "/macro/name/macro1"
-              ]
-            },
-            "shortcut3": {
-              "type": "advanced",
-              "properties": [
-                "/command//ch/level/03 off"
-              ]
-            }
-          }
-        }
-    ';    
+function getSystem(): string
+{
+    // Keep this shape identical to the firmware's system object while making
+    // values changed from the control panel visible in the next fullConfig.
+    return '"system":' . jsonEncode([
+        'pushDelay' => (string)$_SESSION['pushDelay'],
+        'dClicReactivity' => (string)$_SESSION['dClicReactivity'],
+        'profile' => (string)$_SESSION['profile'],
+        'apName' => (string)$_SESSION['apName'],
+        'lastSSID' => (string)$_SESSION['lastSSID'],
+        'lang' => (string)$_SESSION['lang'],
+        'faderSpeed' => (string)$_SESSION['faderSpeed'],
+        'ssid' => [
+            'intervalmix1' => 'CHANGE_ME_WIFI_PASSWORD',
+            'infrafast' => 'CHANGE_ME_WIFI_PASSWORD',
+            'intervalmix' => 'CHANGE_ME_WIFI_PASSWORD',
+            'IpTch' => 'CHANGE_ME_WIFI_PASSWORD',
+        ],
+        'buttonsAssignements' => [
+            'left' => [3, 1, 5, 8],
+            'right' => [2, 1, 4, 9],
+            'tap' => [6, 7, 8, 10],
+        ],
+        'shortcuts' => [
+            'shortcut1' => ['type' => 'jump', 'properties' => ['/strip/id/midi4,strip02']],
+            'shortcut2' => ['type' => 'macro', 'properties' => ['/action/FF', '/macro/name/macro1']],
+            'shortcut3' => ['type' => 'advanced', 'properties' => ['/command//ch/level/03 off']],
+        ],
+    ]);
 }
 
 function getScannedWifi(){
@@ -272,7 +278,8 @@ if ($command == "save"){
     } else {
     // Récupérer la première clé (ici "Network(OSC)")
     $iface = (string)array_key_first($param);
-    $enabled = !empty($param[$iface]['enabled']);
+    $interfaceValues = $param[$iface] ?? [];
+    $enabled = is_array($interfaceValues) && !empty($interfaceValues['enabled']);
     // connected, disconnected, sync, pending
     $states = ["connected", "sync", "disconnected", "pending"];
     $colors = ["blue", "yellow", "red", "green"];
@@ -347,6 +354,21 @@ if ($command == "save"){
     }
 	
 
+}else if ($command == "stopWifi"){
+    $_SESSION['networkState'] = 0;
+    $jsonString = $setSaveButton;
+    enqueue('{'.getConnectivityConfig().'}');
+
+}else if ($command == "deviceEnable"){
+    $param = is_array($param) ? $param : [];
+    $iface = (string)array_key_first($param);
+    if ($iface === '' || !array_key_exists($iface, $param)) {
+        $jsonString = response('commandError', 'deviceEnable expects an interface');
+    } else {
+        $jsonString = $setSaveButton;
+        enqueue('{'.$interfaces.'}');
+    }
+
 }else if ($command == "setWifi"){
     $param = is_array($param) ? $param : [];
     if (flag($_SESSION['cable'])) $jsonString = '{"modalMessage":"wifiSaved"}';
@@ -370,9 +392,13 @@ if ($command == "save"){
         $jsonString = '{'.getDataSets().','.$banks.'}';
     }
     
+}else if ($command == "renameBank"){
+    // Bank persistence is represented by the save acknowledgement in the mock.
+    $jsonString = $setSaveButton;
+
 }else if ($command == "mixerState"){
     $jsonString = '{'.getMixerState().'}';
- }else if ($command == "set"){
+}else if ($command == "set"){
     // The web client uses this command for both language and simulator controls.
     $param = is_array($param) ? $param : [];
     $id = (string)($param['id'] ?? '');
@@ -512,10 +538,18 @@ function getHTMLForm(): string
       </fieldset>
 
       <fieldset>
-        <legend>Raw command</legend>
-        <label>Command <input id="command" autocomplete="off"></label>
-        <label>Parameter <input id="param" size="50" autocomplete="off" placeholder='{"id":"cable","value":false}'></label>
-        <button type="button" id="send">Send</button>
+        <legend>ESP32 command</legend>
+        <label>Command
+          <select id="command"></select>
+        </label>
+        <p id="commandDescription"></p>
+        <div id="paramFields"></div>
+        <details>
+          <summary>Raw JSON parameter (advanced)</summary>
+          <textarea id="rawParam" rows="6" cols="70" placeholder='{"id":"cable","value":false}'></textarea>
+          <p>When filled, this value is sent as-is and overrides the generated fields.</p>
+        </details>
+        <button type="button" id="send">Send command</button>
       </fieldset>
 
       <p><strong>Response</strong></p>
@@ -523,7 +557,11 @@ function getHTMLForm(): string
 
       <script>
         const endpoint = <?= jsonEncode($endpoint) ?>;
+        const catalog = <?= jsonEncode($commandCatalog) ?>;
         const result = document.getElementById('result');
+        const commandSelect = document.getElementById('command');
+        const paramFields = document.getElementById('paramFields');
+        const description = document.getElementById('commandDescription');
 
         async function postCommand(command, param = null) {
           result.classList.remove('error');
@@ -552,13 +590,108 @@ function getHTMLForm(): string
             value: control.checked ? 1 : 0
           }));
         });
+        function addField(name, type = 'text', value = '') {
+          const label = document.createElement('label');
+          label.textContent = name;
+          let input;
+          if (type === 'textarea') {
+            input = document.createElement('textarea');
+            input.rows = 5;
+            input.cols = 60;
+          } else {
+            input = document.createElement('input');
+            input.type = type === 'boolean' ? 'checkbox' : type;
+            if (type === 'boolean') input.checked = Boolean(value);
+          }
+          input.dataset.parameter = name;
+          if (type !== 'boolean') input.value = value;
+          label.appendChild(input);
+          paramFields.appendChild(label);
+          return input;
+        }
+
+        function selectedCommand() {
+          return catalog.commands.find((entry) => entry.name === commandSelect.value);
+        }
+
+        function renderParameters() {
+          const entry = selectedCommand();
+          paramFields.replaceChildren();
+          description.textContent = entry ? entry.description : '';
+          if (!entry || entry.mode === 'none') return;
+          if (entry.mode === 'select') {
+            const select = addField('param', 'select');
+            entry.values.forEach((value) => select.add(new Option(value, value)));
+            return;
+          }
+          if (entry.mode === 'set') {
+            const id = addField('id', 'select');
+            entry.ids.forEach((value) => id.add(new Option(value, value)));
+            addField('value', 'text');
+            return;
+          }
+          if (entry.mode === 'interfaceToggle') {
+            const iface = addField('interface', 'select');
+            catalog.interfaces.forEach((value) => iface.add(new Option(value, value)));
+            addField('enabled', 'boolean', true);
+            return;
+          }
+          if (entry.mode === 'interfaceJson') {
+            const iface = addField('interface', 'select');
+            catalog.interfaces.forEach((value) => iface.add(new Option(value, value)));
+            addField('values', 'textarea', '{}');
+            return;
+          }
+          if (entry.mode === 'wifi') {
+            addField('ssid', 'text', 'intervalmix');
+            addField('password', 'password');
+            return;
+          }
+          if (entry.mode === 'mixer') {
+            addField('serverIP', 'text', '127.0.0.1');
+            addField('mixerPort', 'number', '10023');
+            addField('serverPort', 'number', '10023');
+            return;
+          }
+          if (entry.mode === 'library') {
+            const file = addField('file', 'select');
+            ['sysexlib.json','osclib.json'].forEach((value) => file.add(new Option(value, value)));
+            addField('entries', 'textarea', '{}');
+            return;
+          }
+          if (entry.mode === 'json') {
+            addField('json', 'textarea', JSON.stringify(entry.example || {}, null, 2));
+          }
+        }
+
+        function generatedParameter() {
+          const entry = selectedCommand();
+          if (!entry || entry.mode === 'none') return null;
+          const values = Object.fromEntries([...paramFields.querySelectorAll('[data-parameter]')].map((input) => [input.dataset.parameter, input.type === 'checkbox' ? input.checked : input.value]));
+          if (entry.mode === 'select') return values.param;
+          if (entry.mode === 'set') return {id: values.id, value: ['useNetwork','cable','networkState','AP'].includes(values.id) ? ['true','1','on'].includes(String(values.value).toLowerCase()) : values.value};
+          if (entry.mode === 'interfaceToggle') return {[values.interface]: values.enabled};
+          if (entry.mode === 'interfaceJson') return {[values.interface]: JSON.parse(values.values || '{}')};
+          if (entry.mode === 'json') return JSON.parse(values.json || '{}');
+          if (entry.mode === 'wifi') return {ssid: values.ssid, password: values.password};
+          if (entry.mode === 'mixer') return {serverIP: values.serverIP, mixerPort: values.mixerPort, serverPort: values.serverPort};
+          if (entry.mode === 'library') return {file: values.file, entries: JSON.parse(values.entries || '{}')};
+          return null;
+        }
+
+        catalog.commands.forEach((entry) => commandSelect.add(new Option(entry.name, entry.name)));
+        commandSelect.addEventListener('change', renderParameters);
+        renderParameters();
         document.getElementById('send').addEventListener('click', () => {
-          const command = document.getElementById('command').value.trim();
-          const raw = document.getElementById('param').value.trim();
-          if (!command) { result.textContent = 'Command is required'; return; }
-          let param = raw;
-          if (raw) { try { param = JSON.parse(raw); } catch { /* send plain strings too */ } }
-          postCommand(command, param);
+          const entry = selectedCommand();
+          const raw = document.getElementById('rawParam').value.trim();
+          if (!entry) { result.textContent = 'No command catalogue entry'; return; }
+          try {
+            postCommand(entry.name, raw ? JSON.parse(raw) : generatedParameter());
+          } catch (error) {
+            result.classList.add('error');
+            result.textContent = 'Invalid parameter JSON: ' + error.message;
+          }
         });
         document.getElementById('reset').addEventListener('click', () => {
           if (!confirm('Reset this simulator session?')) return;

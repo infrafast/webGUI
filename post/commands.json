@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "source": "firmware repository: lib/Interval/src/APPManager.h (parseJsonInput)",
+  "description": "Commands understood by the ESP32 web API and by the simulator.",
+  "commands": [
+    {
+      "name": "retrieve",
+      "description": "Read a configuration fragment.",
+      "mode": "select",
+      "parameter": "startup",
+      "values": [
+        "startup",
+        "connectivity",
+        "fullConfig",
+        "banks"
+      ]
+    },
+    {
+      "name": "ping",
+      "description": "Poll the deferred response queue.",
+      "mode": "none"
+    },
+    {
+      "name": "set",
+      "description": "Change a system setting.",
+      "mode": "set",
+      "ids": [
+        "lang",
+        "pushDelay",
+        "dClicReactivity",
+        "faderSpeed",
+        "useNetwork",
+        "cable",
+        "networkState",
+        "AP",
+        "liveserverIP",
+        "hostname",
+        "lastSSID",
+        "startupUpdate",
+        "profile",
+        "apName"
+      ]
+    },
+    {
+      "name": "scanWifi",
+      "description": "Start a WiFi scan.",
+      "mode": "none"
+    },
+    {
+      "name": "stopWifi",
+      "description": "Stop WiFi.",
+      "mode": "none"
+    },
+    {
+      "name": "setWifi",
+      "description": "Select the WiFi network to use.",
+      "mode": "wifi"
+    },
+    {
+      "name": "setMixer",
+      "description": "Set the mixer connection used by the simulator.",
+      "mode": "mixer",
+      "mockOnly": true
+    },
+    {
+      "name": "deviceConfig",
+      "description": "Change an interface configuration.",
+      "mode": "interfaceJson"
+    },
+    {
+      "name": "deviceEnable",
+      "description": "Enable or disable an interface.",
+      "mode": "interfaceToggle"
+    },
+    {
+      "name": "setStrip",
+      "description": "Create or replace a strip.",
+      "mode": "json",
+      "example": {
+        "bank": "Test",
+        "strip": {},
+        "positions": []
+      }
+    },
+    {
+      "name": "trashStrip",
+      "description": "Delete a strip.",
+      "mode": "json",
+      "example": {
+        "bank": "Test",
+        "position": {
+          "win": 0,
+          "x": 0,
+          "y": 0
+        },
+        "positions": []
+      }
+    },
+    {
+      "name": "moveStrip",
+      "description": "Move a strip.",
+      "mode": "json",
+      "example": {
+        "bank": "Test",
+        "index": 0,
+        "x2": 0,
+        "y2": 1,
+        "positions": []
+      }
+    },
+    {
+      "name": "trashBank",
+      "description": "Delete a bank.",
+      "mode": "json",
+      "example": {
+        "name": "BANK 1"
+      }
+    },
+    {
+      "name": "newBank",
+      "description": "Create a bank from a bank object.",
+      "mode": "json",
+      "example": {
+        "name": "New bank",
+        "layout": 2,
+        "strips": []
+      }
+    },
+    {
+      "name": "renameBank",
+      "description": "Rename a bank.",
+      "mode": "json",
+      "example": {
+        "oldname": "BANK 1",
+        "newname": "BANK 2"
+      }
+    },
+    {
+      "name": "saveLibrary",
+      "description": "Save a Sysex or OSC library.",
+      "mode": "library"
+    },
+    {
+      "name": "save",
+      "description": "Persist the current configuration.",
+      "mode": "none"
+    },
+    {
+      "name": "restart",
+      "description": "Restart the simulated device.",
+      "mode": "none"
+    },
+    {
+      "name": "flash",
+      "description": "Simulate a firmware update.",
+      "mode": "none"
+    },
+    {
+      "name": "reset",
+      "description": "Reset this simulator session (mock only).",
+      "mode": "none",
+      "mockOnly": true
+    }
+  ],
+  "interfaces": [
+    "Directory",
+    "WebApplication",
+    "MixingStation",
+    "XMSeries",
+    "USBMIDI",
+    "BLEMIDI",
+    "DINMIDI",
+    "sysOSC",
+    "Artnet",
+    "3PinDMX",
+    "AppleMIDI"
+  ]
+}
