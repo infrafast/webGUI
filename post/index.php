@@ -569,7 +569,7 @@ function getHTMLForm(): string
 
       <script>
         const endpoint = <?= jsonEncode($endpoint) ?>;
-        let catalog = <?= jsonEncode($commandCatalog) ?>;
+        let catalog = <?= jsonEncode($commandCatalog) ?> || {commands: []};
         const communicationLog = document.getElementById('communicationLog');
         const prettyJson = document.getElementById('prettyJson');
         const commandSelect = document.getElementById('command');
@@ -653,7 +653,7 @@ function getHTMLForm(): string
         }
 
         function selectedCommand() {
-          return Array.isArray(catalog.commands) ? catalog.commands.find((entry) => entry.name === commandSelect.value) : null;
+          return catalog && Array.isArray(catalog.commands) ? catalog.commands.find((entry) => entry.name === commandSelect.value) : null;
         }
 
         function renderParameters() {
@@ -674,13 +674,13 @@ function getHTMLForm(): string
           }
           if (entry.mode === 'interfaceToggle') {
             const iface = addField('interface', 'select');
-            catalog.interfaces.forEach((value) => iface.add(new Option(value, value)));
+            (catalog.interfaces || []).forEach((value) => iface.add(new Option(value, value)));
             addField('enabled', 'boolean', true);
             return;
           }
           if (entry.mode === 'interfaceJson') {
             const iface = addField('interface', 'select');
-            catalog.interfaces.forEach((value) => iface.add(new Option(value, value)));
+            (catalog.interfaces || []).forEach((value) => iface.add(new Option(value, value)));
             addField('values', 'textarea', '{}');
             return;
           }
@@ -724,15 +724,21 @@ function getHTMLForm(): string
         async function initializeCommandCatalogue() {
           // The PHP page embeds the catalogue, while the relative fetch makes
           // the panel resilient to a stale PHP cache or a moved checkout.
-          if (!Array.isArray(catalog.commands) || catalog.commands.length === 0) {
+          if (!catalog || !Array.isArray(catalog.commands) || catalog.commands.length === 0) {
             try {
               const response = await fetch('commands.json', {cache: 'no-store'});
-              if (response.ok) catalog = await response.json();
+              if (response.ok) {
+                const loaded = await response.json();
+                // Never replace a usable catalogue with null or malformed data.
+                if (loaded && Array.isArray(loaded.commands) && loaded.commands.length > 0) {
+                  catalog = loaded;
+                }
+              }
             } catch (error) {
               logData('ERROR', 'Unable to load commands.json: ' + error.message);
             }
           }
-          if (!Array.isArray(catalog.commands) || catalog.commands.length === 0) {
+          if (!catalog || !Array.isArray(catalog.commands) || catalog.commands.length === 0) {
             description.textContent = 'Command catalogue unavailable';
             logData('ERROR', 'No command catalogue entry was loaded');
             return;
