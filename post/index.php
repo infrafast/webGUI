@@ -26,6 +26,19 @@ if (!isset($_SESSION['serverPort'])) {
 if (!isset($_SESSION['lang'])) {
   $_SESSION['lang'] = 'francais'; 
 }
+$supportedLanguages = ['deutsch', 'english', 'espanol', 'francais', 'italiano', 'portugues'];
+$availableLanguages = array_values(array_filter(
+  $supportedLanguages,
+  static function ($language) {
+    return is_file(__DIR__ . '/../' . $language . '.json');
+  }
+));
+$_SESSION['lang'] = strtolower((string)$_SESSION['lang']);
+if (!in_array($_SESSION['lang'], $availableLanguages, true)) {
+  $_SESSION['lang'] = in_array('francais', $availableLanguages, true)
+    ? 'francais'
+    : ($availableLanguages[0] ?? 'english');
+}
 if (!isset($_SESSION['liveserverIP'])) {
   $_SESSION['liveserverIP'] = "127.0.0.1";
 }
@@ -66,12 +79,20 @@ $setSaveButton = '{"setSaveButton":"1"}';
 
 $interfaces = '
   "interfaces": 
-[{"system":{"enabled":false,"exposed":false,"hasStrip":true,"group":"Utils","provider":"Utils","icon":"F","properties":[]}},{"Directory":{"enabled":false,"exposed":true,"hasStrip":false,"group":"Utils","provider":"Utils","icon":"F","properties":["/port/0","/ip/0.0.0.0"],"state":"disabled","progress":-1,"details":"Device is not detectable on the network. Use 0.0.0.0 to connect","activable":true,"led":"black"}},{"WebApplication":{"enabled":true,"exposed":false,"hasStrip":false,"group":"Utils","provider":"Utils","icon":"F","properties":["/port/80","/ip/0.0.0.0"]}},{"MixingStation":{"enabled":false,"exposed":true,"hasStrip":true,"group":"Mixer","provider":"MixingStation","icon":"F","properties":["/port/8088","/ip/0.0.0.0"],"state":"Offline","progress":-1,"details":"","activable":true,"led":"black"}},{"XMSeries":{"enabled":true,"exposed":true,"hasStrip":true,"group":"Mixer","provider":"XMSeries","icon":"g","properties":["/connect/1","/port/10023","/ip/192.168.0.1","/ping//xinfo"],"state":"live","progress":-1,"details":"X32OnlineIntervalDemo xm32 192.168.0.1:10023","activable":true,"led":"green"}},{"USBMIDI":{"enabled":false,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"f","properties":[],"state":"disabled","progress":-1,"details":"restartUSB","activable":false,"led":"black"}},{"BLEMIDI":{"enabled":true,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"e","properties":[],"state":"pending","progress":-1,"details":"Connect Blutooth interval","activable":false,"led":"blue medium"}},{"DINMIDI":{"enabled":false,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"c","properties":[],"state":"unavailable","progress":-1,"details":"details","activable":false,"led":"black"}},{"sysOSC":{"enabled":false,"exposed":true,"hasStrip":true,"group":"OSC","provider":"OSC","icon":"g","properties":["/port/5000","/ip/1.1.1.1","/ping//info"],"state":"disabled","progress":-1,"details":"Interface is disabled","activable":true,"led":"black"}},{"Artnet":{"enabled":false,"exposed":true,"hasStrip":true,"group":"DMX","provider":"DMX","icon":"b","properties":[],"state":"unavailable","progress":-1,"details":"Interface not yet implemented","activable":false,"led":"black"}},{"3PinDMX":{"enabled":false,"exposed":true,"hasStrip":true,"group":"DMX","provider":"DMX","icon":"a","properties":[],"state":"unavailable","progress":-1,"details":"Interface not yet implemented","activable":false,"led":"black"}},{"AppleMIDI":{"enabled":false,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"d","properties":["/session/passive"],"state":"disabled","progress":-1,"details":"Interface is disabled","activable":true,"led":"black"}}]
+[{"system":{"enabled":false,"exposed":false,"hasStrip":true,"group":"Utils","provider":"Utils","icon":"F","properties":[]}},{"Directory":{"enabled":false,"exposed":true,"hasStrip":false,"group":"Utils","provider":"Utils","icon":"F","properties":["/port/0","/ip/0.0.0.0"],"state":"disabled","progress":-1,"details":"hint.directory.not_detectable|0.0.0.0","activable":true,"led":"black"}},{"WebApplication":{"enabled":true,"exposed":false,"hasStrip":false,"group":"Utils","provider":"Utils","icon":"F","properties":["/port/80","/ip/0.0.0.0"]}},{"MixingStation":{"enabled":false,"exposed":true,"hasStrip":true,"group":"Mixer","provider":"MixingStation","icon":"F","properties":["/port/8088","/ip/0.0.0.0"],"state":"Offline","progress":-1,"details":"","activable":true,"led":"black"}},{"XMSeries":{"enabled":true,"exposed":true,"hasStrip":true,"group":"Mixer","provider":"XMSeries","icon":"g","properties":["/connect/1","/port/10023","/ip/192.168.0.1","/ping//xinfo"],"state":"live","progress":-1,"details":"X32OnlineIntervalDemo xm32 192.168.0.1:10023","activable":true,"led":"green"}},{"USBMIDI":{"enabled":false,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"f","properties":[],"state":"disabled","progress":-1,"details":"restartUSB","activable":false,"led":"black"}},{"BLEMIDI":{"enabled":true,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"e","properties":[],"state":"pending","progress":-1,"details":"Connect Blutooth interval","activable":false,"led":"blue medium"}},{"DINMIDI":{"enabled":false,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"c","properties":[],"state":"unavailable","progress":-1,"details":"details","activable":false,"led":"black"}},{"sysOSC":{"enabled":false,"exposed":true,"hasStrip":true,"group":"OSC","provider":"OSC","icon":"g","properties":["/port/5000","/ip/1.1.1.1","/ping//info"],"state":"disabled","progress":-1,"details":"Interface is disabled","activable":true,"led":"black"}},{"Artnet":{"enabled":false,"exposed":true,"hasStrip":true,"group":"DMX","provider":"DMX","icon":"b","properties":[],"state":"unavailable","progress":-1,"details":"Interface not yet implemented","activable":false,"led":"black"}},{"3PinDMX":{"enabled":false,"exposed":true,"hasStrip":true,"group":"DMX","provider":"DMX","icon":"a","properties":[],"state":"unavailable","progress":-1,"details":"Interface not yet implemented","activable":false,"led":"black"}},{"AppleMIDI":{"enabled":false,"exposed":true,"hasStrip":true,"group":"MIDI","provider":"MIDI","icon":"d","properties":["/session/passive"],"state":"disabled","progress":-1,"details":"Interface is disabled","activable":true,"led":"black"}}]
 ';
 
-$startup ='
-{"langs":["francais","english"],"maxPOSTsize":4096,"safeScanfSpace":"^","sysexLibFile":"sysexlib.json","oscLibFile":"osclib.json","wizard":false,"lang":"francais","configNames":["default"],"startupUpdate":true} 
-';	
+$startup = json_encode([
+    'langs' => $availableLanguages,
+    'maxPOSTsize' => 4096,
+    'safeScanfSpace' => '^',
+    'sysexLibFile' => 'sysexlib.json',
+    'oscLibFile' => 'osclib.json',
+    'wizard' => false,
+    'lang' => $_SESSION['lang'],
+    'configNames' => ['default'],
+    'startupUpdate' => true
+], JSON_UNESCAPED_SLASHES);
 
 $jsonInput =  '"jsonInput": 
 [{"system":"Utils","properties":[]},{"system":"Utils","properties":[{"/text/%s":["freetext","free text","string"]}]},{"Directory":"Utils","properties":[]},{"WebApplication":"Utils","properties":[{"/port/%d":["freetext","port","0-65535"]},{"/ip/%s":["freetext","ip","ip"]}]},{"jump":"shortcut","properties":[{"/strip/id/%s":["dropdown"]}]},{"macro":"shortcut","properties":[{"/macro/name/%s":["dropdown"]},{"/action/%s":["dropdown"]}]},{"advanced":"shortcut","properties":[{"/command/%s":["freetext","command","string"]}]},{"jump":"shortcut","properties":[{"/strip/id/%s":["dropdown"]}]},{"macro":"shortcut","properties":[{"/macro/name/%s":["dropdown"]},{"/action/%s":["dropdown"]}]},{"advanced":"shortcut","properties":[{"/command/%s":["freetext","command","string"]}]},{"MixingStation":"Mixer","properties":[{"/port/%d":["freetext","port","0-65535"]},{"/ip/%s":["freetext","ip","ip"]}]},{"XMSeries":"Mixer","properties":[{"/port/%d":["freetext","port","0-65535"]},{"/ip/%s":["freetext","ip","ip"]},{"/connect/%d":["dropdown"]},{"/model/%s":["dropdown"]}]},{"ch2bus":"Mixer","properties":[{"/chname/%d":["dropdown"]},{"/busname/%d":["dropdown"]}],"icon":0},{"chGain":"Mixer","properties":[{"/chname/%d":["dropdown"]}],"icon":0},{"text":"Utils","properties":[{"/text/%s":["freetext","free text","string"]}],"icon":68},{"Note":"MIDI","properties":[{"/channel/%d":["dropdown"]},{"/note/%s":["dropdown"]},{"/value1/%s":["freetext","note","0-126"]},{"/value2/%s":["freetext","velocity","0-126"]}],"icon":255},{"Sysex":"MIDI","properties":[{"/sysex/%s":["dropdown"]}],"icon":94},{"SendOSC":"OSC","properties":[{"/osc/%s":["dropdown"]}],"icon":0},{"USBMIDI":"MIDI","properties":[]},{"BLEMIDI":"MIDI","properties":[]},{"DINMIDI":"MIDI","properties":[]},{"sysOSC":"OSC","properties":[{"/port/%d":["freetext","port","0-65535"]},{"/ip/%s":["freetext","ip","ip"]},{"/ping/%s":["freetext","ping","string"]}]},{"Artnet":"DMX","properties":[]},{"3PinDMX":"DMX","properties":[]},{"AppleMIDI":"MIDI","properties":[{"/session/%s":["dropdown"]}]}]
@@ -113,7 +134,7 @@ function getSystem(){
           "profile": "default",
           "apName": "footswitch",
           "lastSSID": "intervalmix1",
-          "lang": "francais",
+          "lang": "'.$_SESSION['lang'].'",
           "faderSpeed": "157",
           "ssid": {
             "intervalmix1": "CHANGE_ME_WIFI_PASSWORD",
@@ -343,7 +364,10 @@ if ($command == "save"){
     //"set","param":{"section":"system","type":"lang","value":"francais"}}
     switch ($param["id"]) {
         case "lang":
-           $_SESSION['lang'] = $param["value"];
+           $requestedLanguage = strtolower((string)($param["value"] ?? ''));
+           if (in_array($requestedLanguage, $availableLanguages, true)) {
+               $_SESSION['lang'] = $requestedLanguage;
+           }
            $jsonString = $setSaveButton;
         break;
         case "dataSet":
@@ -515,4 +539,3 @@ function getHTMLForm(){
 
 
 ?>
-
