@@ -518,8 +518,10 @@ function getHTMLForm(): string
         fieldset { margin: 1rem 0; padding: 1rem; }
         label { display: inline-flex; gap: .45rem; margin: .35rem 1rem .35rem 0; }
         input, select, button { font: inherit; padding: .35rem .5rem; }
-        #result { display: block; white-space: pre-wrap; overflow-wrap: anywhere; background: #eef6ff; padding: .75rem; min-height: 2rem; }
-        .error { color: #a00; }
+        #communicationLog { white-space: pre-wrap; overflow-wrap: anywhere; background: #101820; color: #d8f3dc; padding: .75rem; min-height: 10rem; max-height: 32rem; overflow: auto; }
+        .log-out { color: #9ad1d4; }
+        .log-in { color: #f6bd60; }
+        .log-error { color: #f28482; }
       </style>
     </head>
     <body>
@@ -552,34 +554,68 @@ function getHTMLForm(): string
         <button type="button" id="send">Send command</button>
       </fieldset>
 
-      <p><strong>Response</strong></p>
-      <code id="result" aria-live="polite"></code>
+      <fieldset>
+        <legend>Communication log</legend>
+        <label><input type="checkbox" id="prettyJson" checked> Pretty JSON</label>
+        <button type="button" id="clearLog">Clear log</button>
+        <pre id="communicationLog" aria-live="polite" aria-label="Communication log"></pre>
+      </fieldset>
 
       <script>
         const endpoint = <?= jsonEncode($endpoint) ?>;
         const catalog = <?= jsonEncode($commandCatalog) ?>;
-        const result = document.getElementById('result');
+        const communicationLog = document.getElementById('communicationLog');
+        const prettyJson = document.getElementById('prettyJson');
         const commandSelect = document.getElementById('command');
         const paramFields = document.getElementById('paramFields');
         const description = document.getElementById('commandDescription');
+        const logEntries = [];
+
+        function displayData(data, pretty) {
+          if (typeof data !== 'string') return JSON.stringify(data, null, pretty ? 2 : 0);
+          try {
+            const parsed = JSON.parse(data);
+            return pretty ? JSON.stringify(parsed, null, 2) : JSON.stringify(parsed);
+          } catch {
+            return data;
+          }
+        }
+
+        function renderLog() {
+          communicationLog.replaceChildren();
+          logEntries.forEach((entry) => {
+            const line = document.createElement('span');
+            line.className = entry.direction === 'OUT' ? 'log-out' : (entry.direction === 'IN' ? 'log-in' : 'log-error');
+            const header = `[${entry.timestamp}] ${entry.direction}` + (entry.status ? ` HTTP ${entry.status}` : '');
+            line.textContent = `${header}\n${displayData(entry.data, prettyJson.checked)}\n\n`;
+            communicationLog.appendChild(line);
+          });
+          communicationLog.scrollTop = communicationLog.scrollHeight;
+        }
+
+        function logData(direction, data, status = '') {
+          logEntries.push({timestamp: new Date().toISOString(), direction, data, status});
+          // Keep the diagnostic page useful during long polling sessions.
+          if (logEntries.length > 200) logEntries.shift();
+          renderLog();
+        }
 
         async function postCommand(command, param = null) {
-          result.classList.remove('error');
+          const request = {command, param};
+          logData('OUT', request);
           try {
             const response = await fetch(endpoint, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({command, param})
+              body: JSON.stringify(request)
             });
             const text = await response.text();
-            let payload;
-            try { payload = JSON.parse(text); } catch { throw new Error('Invalid JSON response: ' + text); }
+            logData('IN', text, response.status);
             if (!response.ok) throw new Error('HTTP ' + response.status);
-            result.textContent = JSON.stringify(payload, null, 2);
-            return payload;
+            try { return JSON.parse(text); }
+            catch { throw new Error('Invalid JSON response'); }
           } catch (error) {
-            result.classList.add('error');
-            result.textContent = error.message;
+            logData('ERROR', error.message);
             return null;
           }
         }
@@ -682,15 +718,20 @@ function getHTMLForm(): string
         catalog.commands.forEach((entry) => commandSelect.add(new Option(entry.name, entry.name)));
         commandSelect.addEventListener('change', renderParameters);
         renderParameters();
+        prettyJson.addEventListener('change', renderLog);
+        document.getElementById('clearLog').addEventListener('click', () => {
+          logEntries.length = 0;
+          renderLog();
+        });
+
         document.getElementById('send').addEventListener('click', () => {
           const entry = selectedCommand();
           const raw = document.getElementById('rawParam').value.trim();
-          if (!entry) { result.textContent = 'No command catalogue entry'; return; }
+          if (!entry) { logData('ERROR', 'No command catalogue entry'); return; }
           try {
             postCommand(entry.name, raw ? JSON.parse(raw) : generatedParameter());
           } catch (error) {
-            result.classList.add('error');
-            result.textContent = 'Invalid parameter JSON: ' + error.message;
+            logData('ERROR', 'Invalid parameter JSON: ' + error.message);
           }
         });
         document.getElementById('reset').addEventListener('click', () => {
