@@ -640,13 +640,15 @@ function getHTMLForm(): string
             input = document.createElement('textarea');
             input.rows = 5;
             input.cols = 60;
+          } else if (type === 'select') {
+            input = document.createElement('select');
           } else {
             input = document.createElement('input');
             input.type = type === 'boolean' ? 'checkbox' : type;
             if (type === 'boolean') input.checked = Boolean(value);
           }
           input.dataset.parameter = name;
-          if (type !== 'boolean') input.value = value;
+          if (type !== 'boolean' && type !== 'select') input.value = value;
           label.appendChild(input);
           paramFields.appendChild(label);
           return input;
