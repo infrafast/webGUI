@@ -32,3 +32,13 @@ python3 post/audit_commands.py /path/to/esp32
 
 The audit exits with an error when a firmware command is missing from the
 catalogue or when a catalogue entry is not present in the firmware source.
+
+## Control panel broadcast
+
+The control panel marks its POST requests with
+`X-ESP32-Simulator-Control: 1`. The mock copies the direct response and any
+queued follow-up events into a locked temporary shared queue. A webApp session
+receives these events on its normal `ping`, so commands such as `restart` can be
+triggered from the control panel without changing the production webApp or the
+ESP32 firmware. Requests coming from the webApp itself are not copied, which
+prevents duplicate callbacks.

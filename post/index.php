@@ -209,12 +209,72 @@ function getLibKeys($filename) {
 }
 
 
-///////////////////////////////////////////// 
-//         QUEUE MANAGEMENT
-///////////////////////////////////////////// 
+/////////////////////////////////////////////
+// QUEUE MANAGEMENT
+//
+// Normal webApp requests use the PHP session queue, like the ESP32's own
+// connection. Requests from the simulator control panel are additionally
+// copied to a short-lived shared queue so a separate webApp tab can observe
+// them through its regular ping polling. No webApp or firmware change is
+// required for this bridge.
+/////////////////////////////////////////////
+function sharedQueuePath(): string
+{
+    return sys_get_temp_dir() . '/interval-esp32-mock-' . sha1(__DIR__) . '.json';
+}
+
+function sharedQueueUpdate(callable $update)
+{
+    $handle = fopen(sharedQueuePath(), 'c+');
+    if ($handle === false) {
+        return null;
+    }
+    try {
+        if (!flock($handle, LOCK_EX)) {
+            return null;
+        }
+        rewind($handle);
+        $contents = stream_get_contents($handle);
+        $queue = json_decode($contents ?: '[]', true);
+        if (!is_array($queue)) {
+            $queue = [];
+        }
+        $result = $update($queue);
+        rewind($handle);
+        ftruncate($handle, 0);
+        fwrite($handle, jsonEncode($queue));
+        fflush($handle);
+        flock($handle, LOCK_UN);
+        return $result;
+    } finally {
+        fclose($handle);
+    }
+}
+
+function enqueueShared(string $item): void
+{
+    sharedQueueUpdate(static function (array &$queue) use ($item): void {
+        $queue[] = $item;
+        if (count($queue) > 64) {
+            $queue = array_slice($queue, -64);
+        }
+    });
+}
+
+function dequeueShared(): ?string
+{
+    return sharedQueueUpdate(static function (array &$queue): ?string {
+        return empty($queue) ? null : (string)array_shift($queue);
+    });
+}
+
 function dequeue(): string
 {
     $_SESSION['progress'] = ((int)$_SESSION['progress'] + 10) % 101;
+    $shared = dequeueShared();
+    if ($shared !== null) {
+        return $shared;
+    }
     if (!empty($_SESSION['nextStepQueue'])) {
         return (string)array_shift($_SESSION['nextStepQueue']);
     }
@@ -247,8 +307,11 @@ function enqueue(string $item): void
 /////////////////////////////////////////////
 
 $request = requestPayload();
+$isControlRequest = isset($_SERVER['HTTP_X_ESP32_SIMULATOR_CONTROL'])
+    && $_SERVER['HTTP_X_ESP32_SIMULATOR_CONTROL'] === '1';
 $command = trim((string)($request['command'] ?? ''));
 $param = parameter($request, 'param', null);
+$queueStart = count($_SESSION['nextStepQueue']);
 $data = [];
 $jsonString = $doNothing;
 
@@ -486,6 +549,18 @@ else if ($command == "ping"){
     $jsonString = getHTMLForm();
 }
 
+// A control-panel request has already received its direct response. Copy that
+// response for the real webApp, which will consume it on its next ping.
+if ($isControlRequest && $command !== '' && $command !== 'ping' && $command !== 'reset') {
+    // Preserve the real ordering: immediate reply first, deferred events next.
+    enqueueShared($jsonString);
+    $deferred = array_slice($_SESSION['nextStepQueue'], $queueStart);
+    foreach ($deferred as $item) {
+        enqueueShared((string)$item);
+    }
+    $_SESSION['nextStepQueue'] = array_slice($_SESSION['nextStepQueue'], 0, $queueStart);
+}
+
 if ($command !== '') {
     header('Content-Type: application/json; charset=utf-8');
 }
@@ -612,7 +687,7 @@ function getHTMLForm(): string
           try {
             const response = await fetch(endpoint, {
               method: 'POST',
-              headers: {'Content-Type': 'application/json'},
+              headers: {'Content-Type': 'application/json', 'X-ESP32-Simulator-Control': '1'},
               body: JSON.stringify(request)
             });
             const text = await response.text();
