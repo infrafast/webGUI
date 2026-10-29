@@ -1,1 +1,9 @@
-{}
+{
+  "Model": "Modelo",
+  "connectionMethod": "Método de ligação",
+  "modelHelp": "Ligação a uma mesa física ou através da Mixing Station",
+  "msConnectIPHelp": "Endereço IP da mesa à qual a Mixing Station se liga",
+  "MixingStation": "Mixing Station",
+  "XMSeries": "Série Behringer",
+  "idle": "Mesa a aguardar ligação"
+}

@@ -1,1 +1,9 @@
-{}
+{
+  "Model": "Modell",
+  "connectionMethod": "Verbindungsmethode",
+  "modelHelp": "Verbindung mit einem physischen Mischpult oder über Mixing Station",
+  "msConnectIPHelp": "IP-Adresse des Mischpults, mit dem Mixing Station verbunden ist",
+  "MixingStation": "Mixing Station",
+  "XMSeries": "Behringer-Serie",
+  "idle": "Mischpult wartet auf Verbindung"
+}

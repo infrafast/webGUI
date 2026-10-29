@@ -1,1 +1,9 @@
-{}
+{
+  "Model": "Modello",
+  "connectionMethod": "Metodo di connessione",
+  "modelHelp": "Connessione a un mixer fisico o tramite Mixing Station",
+  "msConnectIPHelp": "Indirizzo IP del mixer a cui si connette Mixing Station",
+  "MixingStation": "Mixing Station",
+  "XMSeries": "Serie Behringer",
+  "idle": "Mixer in attesa di connessione"
+}

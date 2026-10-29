@@ -1,10 +1,9 @@
 {
-    "USERTAB": "MIXER",
-    "mixerHelp": "Auto=search mixer\nDemo=connect demo system (you need internet connection)\nManual=enter your mixer IP and port",
-    "idle": "pending console connexion",
-    "Wizard Step 2": "Step 2: connect the mixer",
-    "MixingStation": "Mixing Station",
-    "AppleMIDI": "Apple MIDI",
-    "XMSeries": "Behringer series",
-    "X+Mseries-Network(OSC)": "Xair/XM/MIDAS network"
+  "Model": "Model",
+  "connectionMethod": "Connection method",
+  "modelHelp": "Connect to a physical mixer or through Mixing Station",
+  "msConnectIPHelp": "IP address of the console connected to by Mixing Station",
+  "MixingStation": "Mixing Station",
+  "XMSeries": "Behringer series",
+  "idle": "Mixer waiting for connection"
 }
