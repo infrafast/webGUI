@@ -1,0 +1,21 @@
+{
+    "USERBOX":"User page",
+    "Waiting connection...":"En attente de connexion...",
+    "Mixer":"Console",
+    "Model":"Modèle",
+    "primaryPortHelp":"Mixer Behringer: 10023 (x32) ou 10024 (xair), Mixing station: 3000",
+    "secondPortHelp": "port HTTP REST de Mixing station (8080 par défaut)",
+    "mixerIPHelp":"Addresse IP du mixer Behringer ou du logiciel MixingStation",
+    "msConnectIPHelp":"Adresse IP de la console à laquelle Mixing Station se connecte",
+    "connectionMethod":"Choisissez Default si vous souhaitez utiliser les paramètres de Mixing Station, sinon choisissez le modèle auquel vous voulez connecter Mixing Station si il n'est pas deja connecté.",
+    "modelHelp":"Connexion a une console physique ou bien via Mixing Station",
+    "mixerHelp":"Auto=recherche automatique\nDemo=connecte le système de démo (connexion internet requise)\nManual=entrez vous même IP et port",
+    "idle":"console en attente de connexion",
+    "syncing software":"synchro Mixing Station",
+    "syncing data":"synchronisation des données",
+    "Wizard Step 2": "Etape 2: Connecter la console",
+    "X+Mseries-Network(OSC)":"Xair/XM/MIDAS réseau",
+    "MixingStation":"Mixing Station",
+    "AppleMIDI":"Apple MIDI",
+    "XMSeries":"Behringer series"
+}

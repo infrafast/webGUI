@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <g id="rectangle-vertical" clip-path="url(#clip0_1701_1303)" style="" transform="matrix(0.797694, 0, 0, 1, 1.011534, 0)">
+    <path d="M -2.092 -0.441 H -0.354 L -0.522 -1.128 L 2.6 0.296 L -0.522 1.72 L -0.354 1.033 H -2.092 V -0.441 Z" style="fill: rgb(216, 216, 216); stroke-linecap: round; stroke-linejoin: round; stroke: rgb(0, 0, 0); paint-order: stroke; transform-origin: 0.254px 0.296px;" transform="matrix(0.000023, -1, 1, 0.000016, 12.680077, 2.909545)" bx:shape="arrow -2.092 -1.128 4.692 2.848 1.474 3.122 0.168 1@0ea579e1"/>
+    <path d="M -2.092 -0.441 H -0.354 L -0.522 -1.128 L 2.6 0.296 L -0.522 1.72 L -0.354 1.033 H -2.092 V -0.441 Z" style="fill: rgb(216, 216, 216); stroke-linecap: round; stroke-linejoin: round; stroke: rgb(0, 0, 0); paint-order: stroke; transform-origin: 0.254px 0.296px;" transform="matrix(-0.000024, 1, -1, -0.000016, 12.680276, 20.59844)" bx:shape="arrow -2.092 -1.128 4.692 2.848 1.474 3.122 0.168 1@0ea579e1"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_1701_1303">
+      <rect width="24" height="24" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>

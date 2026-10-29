@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <g id="square">
+    <g id="outline" filter="url(#filter0_d_1701_1218)" transform="matrix(1, 0, 0, 1, 0.099379, -0.074534)">
+      <path d="M20 3C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21L4 21C3.44772 21 3 20.5523 3 20L3 4C3 3.44772 3.44772 3 4 3L20 3Z" fill="white"/>
+    </g>
+    <path id="icon" d="M 19.274 10.341 L 19.274 13.534 L 5.124 13.534 L 5.124 10.341 L 19.274 10.341 Z" style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); vector-effect: non-scaling-stroke;"/>
+    <path id="path-2" d="M 19.248 5.049 L 19.248 9.782 L 12.677 9.782 L 12.677 5.049 L 19.248 5.049 Z" style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); vector-effect: non-scaling-stroke;"/>
+    <path id="path-3" d="M 12.342 14.091 L 12.342 18.799 L 5.174 18.799 L 5.174 14.091 L 12.342 14.091 Z" style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); vector-effect: non-scaling-stroke;"/>
+  </g>
+  <defs>
+    <filter id="filter0_d_1701_1218" x="1" y="1.5" width="22" height="22" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="0.5"/>
+      <feGaussianBlur stdDeviation="1"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1701_1218"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1701_1218" result="shape"/>
+    </filter>
+  </defs>
+  <rect x="5.64" y="5.534" width="5.963" height="3.777" style="fill: rgb(216, 216, 216); stroke-miterlimit: 2.01; stroke-linecap: round; paint-order: stroke; transform-box: fill-box; transform-origin: 50% 50%; stroke: rgb(0, 0, 0);"/>
+  <text style="fill: rgb(0, 0, 0); font-family: Arial, sans-serif; font-size: 28px; white-space: pre;" transform="matrix(0.259729, 0, 0, 0.132546, 3.060756, 6.548141)" x="13.689" y="15.423">?</text>
+  <path d="M -5.245 0.791 H 0.308 L -0.464 -1.777 L 10.47 1.79 L -0.464 5.358 L 0.308 2.789 H -5.245 V 0.791 Z" style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); transform-box: fill-box; transform-origin: 50% 50%;" transform="matrix(-0.6693, -0.742992, 0.750003, -0.661517, 15.674001, 15.478255)" bx:shape="arrow -5.245 -1.777 15.715 7.135 1.998 10.934 0.772 1@bef91ccf"/>
+</svg>

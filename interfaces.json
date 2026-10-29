@@ -1,0 +1,147 @@
+{
+	"interfaces": [
+		{
+			"model":"XR12",
+			"protocol": "xair",
+			"chSize": 12,
+			"busSize": 4,
+			"auxSize": 1,
+			"fxRetSize": 4,
+			"mainSize": 1
+		},
+		{
+			"model":"XR16",
+			"protocol": "xair",
+			"chSize": 16,
+			"busSize": 4,
+			"auxSize": 1,
+			"fxRetSize": 4,
+			"mainSize": 1
+		},{
+			"model":"XR18",
+			"protocol": "xair",
+			"chSize": 18,
+			"busSize": 8,
+			"auxSize": 1,
+			"fxRetSize": 4,
+			"mainSize": 1
+		},
+		{
+			"model":"X32",
+			"protocol": "x32",
+			"chSize": 32,
+			"busSize": 16,
+			"auxSize": 8,
+			"fxRetSize": 8,
+			"mainSize": 1
+		},
+		{
+			"model":"MixingStation",
+			"chSize": 7,
+			"busSize": 5,
+			"auxSize": 3,
+			"fxRetSize": 4,
+			"mainSize": 2
+		}					
+	],
+	"protocols":[
+		{
+			"name":"xair",
+			"ch":{
+				"name":"/ch/config/%d/name",
+				"busLevel":"",
+				"lrLevel":""
+			},	
+			"bus":{
+				"name": "/bus/%02d/config/",
+				"level":""
+			}
+		},
+		{
+			"name":"x32",
+			"ch":{
+				"name":"/ch/config/%d/name",
+				"busLevel":"",
+				"lrLevel":""
+			},	
+			"bus":{
+				"name": "/bus/config/%d/name",
+				"level":""
+			}
+		}
+	],
+	"consoles": [
+        {
+          "consoleId": 0,
+          "name": "X32/M32"
+        },
+        {
+          "consoleId": 2,
+          "name": "X/M AIR"
+        },
+        {
+          "consoleId": 6,
+          "name": "Wing"
+        },
+        {
+          "consoleId": 13,
+          "name": "HD96-24"
+        },
+        {
+          "consoleId": 10,
+          "name": "Avantis"
+        },
+        {
+          "consoleId": 11,
+          "name": "dLive"
+        },
+        {
+          "consoleId": 4,
+          "name": "GLD"
+        },
+        {
+          "consoleId": 17,
+          "name": "iLive"
+        },
+        {
+          "consoleId": 5,
+          "name": "SQ"
+        },
+        {
+          "consoleId": 1,
+          "name": "Qu"
+        },
+        {
+          "consoleId": 16,
+          "name": "CQ"
+        },
+        {
+          "consoleId": 8,
+          "name": "Vi"
+        },
+        {
+          "consoleId": 3,
+          "name": "Si"
+        },
+        {
+          "consoleId": 12,
+          "name": "Ui"
+        },
+        {
+          "consoleId": 9,
+          "name": "DL"
+        },
+        {
+          "consoleId": 14,
+          "name": "DM"
+        },
+        {
+          "consoleId": 15,
+          "name": "TF"
+        },
+        {
+          "consoleId": 18,
+          "name": "StudioLive III"
+        }
+      ]
+}

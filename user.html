@@ -1,0 +1,188 @@
+<style>
+
+.connected{
+    text-shadow: 2px 3px 5px #AAFF00;
+}    
+ 
+.disconnected{
+    text-shadow: 2px 3px 5px red;
+} 
+
+.unreachable{
+    text-shadow: 2px 3px 5px orange;
+}
+
+.searching, .idle, .connecting{
+    animation: blueFade 1s infinite;
+}
+
+.syncing{
+    animation: greenFade 1s infinite;
+}
+
+@keyframes greenFade{
+    0,100%{text-shadow: transparent 0px;}
+    50%{text-shadow:#AAFF00 1px 0 20px;}
+}
+
+@keyframes blueFade{
+    0,100%{text-shadow: transparent 0px;}
+    50%{text-shadow:blue 1px 0 20px;}
+}
+
+
+.mixingStation{
+    display: none;
+}
+
+</style>
+
+						
+<table class="center" style="border-radius: 13px; width: 90%; color:black; ">
+        <tr style="vertical-align: middle; ;">
+            <td style="width: 33%; font-size:15vw; text-align: right">
+             
+                <icon char="ICON_FOOTSWITCH" class="bigIcon"></icon>   
+            </td>
+            <td style="font-size:28px; text-align: center; " >
+
+                <div id="serverSync" class="connectbar" style="font-size: 1.5vw; vertical-align: top; color:white; border-radius: 13px">
+                </div>
+                <span  id="serverLink">Server Link</span>                        
+            </td>
+            <td style="width: 33%; text-align:left" >
+                <span  id="serverIP">serverIP</span>                          
+                <icon font="iconUser" char="ICON_MIXER" id="mixerSync" class="bigIcon"></icon>
+                <span id="mixerDetails">mixerDetails</span>  
+                <div id="syncBgcol" class="progress">
+                    <div id="syncProgress" class="progress-value"></div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td  style="text-align: center;">
+
+                    <input id="serverCollapsible" class="toggle" type="checkbox">
+                    <label for="serverCollapsible" class="lbl-toggle lightOff"><i18n id="Settings"></i18n></label>
+                    <div class="collapsible-content">
+                        <div class="content-inner" style="background: grey;">
+                            <center>                        
+                            
+                            <select onChange="changeServerIP(this.value); if (this.value != 'manual') transmitMixer();" id="selectMixer" style="width:50%">
+                                <option mixerChoice="discovery" value="auto" selected></option>
+                                <option mixerChoice="manual" value="manual"></option>
+                                <option mixerChoice="offline" value="offline">offline</option>
+                                <option mixerChoice="demo" value="demo" disabled>demo</option>
+                            </select>                    
+                            <span class='help' message='mixerHelp'></span><br><br>                         
+
+                            <div id="modelPanel">
+                                <select id="serverModel" onChange="setMSview(this.value); setPort(this.value); transmitMixer()" style="width:50%"></select>
+                                <span class="help" message="modelHelp"></span><br><br>    
+                            </div>
+                            
+                            
+                            <div id="serverConnectivityDetails" style="display:none;">
+                                    <span class="help" message="mixerIPHelp">IP: </span><input type="text" style="width: fit-content" id="serverIPform" value="0.0.0.0" maxlength="15">
+                                    <p><span class="help" message="primaryPortHelp">OSC port: </span><input style="width: fit-content" type="text" id="serverPort"  maxlength="5" size="5"></p>
+                                    <p class="mixingStation"><span class="help" message="secondPortHelp">HTTP REST port: </span><input style="width: fit-content" type="text" id="mixerPort"  maxlength="5" size="5"></p>
+                    <p>
+                        <button id="connectButton" style="width: fit-content;" onclick="connect();"><i18n id="connect"></i18n></button>
+                    </p>
+                            </div> 
+                            
+                            </center>
+                        </div>
+                    </div>
+                    
+                    <div class="mixingStation">
+                        <input id="mixerCollapsible" class="toggle" type="checkbox">
+                        <label for="mixerCollapsible" class="lbl-toggle lightOff"><i18n id="Mixer"></i18n></label>
+                        <div class="collapsible-content">
+                            <div class="content-inner" style="font-size:1.3vw ">
+                                <center> 
+                                
+                                    <i18n id="Model" class="help" message="connectionMethod"></i18n>:
+                                    <select onChange="autoConnectChange(this.value);"  id="autoConnectModel" style="width:50%">
+                                    <!--
+                                    <option value="-1">Default</option>
+                                            <optgroup label="________________">
+                                            <option value="0">Behringer</option>
+                                            <option value="1">Yamaha</option>
+                                            <option value="2">Allen&Heath</option>
+                                          </optgroup>
+                                    -->
+                                    </select>                                            
+                                    <div id="msIPdiv">
+                                        <p><span class="help" message="msConnectIPHelp">IP: </span><input type="text" style="width: fit-content" id="autoConnectIP" value="0.0.0.0" maxlength="15" onChange="transmitMixer();"></p>
+                                    </div>
+                                </center>
+                            </div>
+                        </div>                            
+                    </div>
+
+            </td>
+            <td style="text-align: center;">														
+            </td>
+        </tr>
+</table>
+<h2>
+    <div id="waitingMixer" style="display:block"></div>
+</h2>
+
+
+<!--
+<div class="fsl-accordion-container">
+    <p class="fsl-accordion-btn">😀 <i18n id="fourre-tout"></i18n><span></span></p>
+    <div class="fsl-accordion-panel" id="fourretout" style="overflow-y: scroll;">
+        <h8>0123</h8>
+        <h2>
+            <p>USER PANEL</p>
+        </h2>
+        <div style="color: black">
+            <center>
+                <p>
+                    <h8>56789</h8>
+                </p>
+                <p><span id="testJS">IF YOU SEE THIS TEXT IT FAIL</span></p>
+                <p>
+                    <h8>abcdefghijklmnopqrstuvwxy</h8>
+                </p>
+                <button onclick="popup('this calls a js function from interval.js')">INTERVAL.JS click me</button>
+                <button onclick="mypopup('this calls a js function from user.js')">USER.JS click me</button>
+                <p>
+                    Traduction de shortcut: 
+                    <i18n id="shortcuts">TRANSLATE FAILED</i18n>
+                </p>
+                <div class="iconUser" style="font-size: 3em">
+                    <p>abcdefghijklmnopq</p>
+                    <p>rstuvwxyABCD</p>
+                </div>
+                <select class="iconUser">
+                    <option class="bigIcon" value="0">0</option>
+                    <option class="bigIcon" value="1">1</option>
+                    <option class="bigIcon" value="2">2</option>
+                    <option class="bigIcon" value="3">3</option>
+                </select>
+                <p address="/bus/2/config/name">oldcontent</p>
+                <select id="">
+                    <option address="/bus/1/config/name" value="0">laurent</option>
+                    <option address="/bus/2/config/name" value="1">claude</option>
+                    <option address="/bus/3/config/name" value="2">anto</option>
+                    <option address="/bus/4/config/name" value="3">mike</option>
+                </select>
+                <button onclick='updateDataSets([[{"/bus/2/config/name":"new val"},{"/bus3/config/name":"mybus"}]])'> Update values</button>
+            </center>
+        </div>
+    </div>
+</div>
+
+<div class="fsl-accordion-container">
+    <p class="fsl-accordion-btn">⚙ <i18n id="User settings"></i18n><span></span></p>
+    <div class="fsl-accordion-panel">
+        <button onclick='loadConfig()'>RELOAD</button>
+	</div>
+</div>
+
+-->
