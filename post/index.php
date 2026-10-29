@@ -542,7 +542,13 @@ function getHTMLForm(): string
       <fieldset>
         <legend>ESP32 command</legend>
         <label>Command
-          <select id="command"></select>
+          <select id="command">
+            <?php foreach (($commandCatalog['commands'] ?? []) as $entry): ?>
+              <option value="<?= htmlspecialchars((string)($entry['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                <?= htmlspecialchars((string)($entry['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
         </label>
         <p id="commandDescription"></p>
         <div id="paramFields"></div>
@@ -563,7 +569,7 @@ function getHTMLForm(): string
 
       <script>
         const endpoint = <?= jsonEncode($endpoint) ?>;
-        const catalog = <?= jsonEncode($commandCatalog) ?>;
+        let catalog = <?= jsonEncode($commandCatalog) ?>;
         const communicationLog = document.getElementById('communicationLog');
         const prettyJson = document.getElementById('prettyJson');
         const commandSelect = document.getElementById('command');
@@ -647,7 +653,7 @@ function getHTMLForm(): string
         }
 
         function selectedCommand() {
-          return catalog.commands.find((entry) => entry.name === commandSelect.value);
+          return Array.isArray(catalog.commands) ? catalog.commands.find((entry) => entry.name === commandSelect.value) : null;
         }
 
         function renderParameters() {
@@ -715,9 +721,29 @@ function getHTMLForm(): string
           return null;
         }
 
-        catalog.commands.forEach((entry) => commandSelect.add(new Option(entry.name, entry.name)));
+        async function initializeCommandCatalogue() {
+          // The PHP page embeds the catalogue, while the relative fetch makes
+          // the panel resilient to a stale PHP cache or a moved checkout.
+          if (!Array.isArray(catalog.commands) || catalog.commands.length === 0) {
+            try {
+              const response = await fetch('commands.json', {cache: 'no-store'});
+              if (response.ok) catalog = await response.json();
+            } catch (error) {
+              logData('ERROR', 'Unable to load commands.json: ' + error.message);
+            }
+          }
+          if (!Array.isArray(catalog.commands) || catalog.commands.length === 0) {
+            description.textContent = 'Command catalogue unavailable';
+            logData('ERROR', 'No command catalogue entry was loaded');
+            return;
+          }
+          commandSelect.replaceChildren();
+          catalog.commands.forEach((entry) => commandSelect.add(new Option(entry.name, entry.name)));
+          renderParameters();
+        }
+
         commandSelect.addEventListener('change', renderParameters);
-        renderParameters();
+        initializeCommandCatalogue();
         prettyJson.addEventListener('change', renderLog);
         document.getElementById('clearLog').addEventListener('click', () => {
           logEntries.length = 0;
