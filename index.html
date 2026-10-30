@@ -343,7 +343,26 @@ input, select, .skelName, .stripProperty { width: 80%; }
     .bigIcon { font-size: clamp(3rem, 8vw, 9rem); }
     .stripMask, .tooltip .tooltiptext { font-size: .85rem; }
     .closeStripButton, .property, .charPopupButton, .fsl-accordion-container, .trash-icon, .move-icon, .config-icon, .copy-icon, .bankIcon, .bankCopy, .bankName { font-size: clamp(.85rem, .9vw, 1.2rem); }
-    #bankNavigator{display: flex;height: 64px;}
+    #bankNavigator {
+        display: flex;
+        width: 100%;
+        height: 64px;
+        gap: 4px;
+    }
+    #bankNavigator > .bankSelector,
+    #bankNavigator > .newBank {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    #bankNavigator > .bankSelector > .tooltip {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    #bankNavigator .bankName {
+        width: 100%;
+        min-width: 0;
+        margin-left: 0;
+    }
     /* Keep the main desktop tabs readable without letting their labels
        dominate the interface on wide screens. Mobile sizing is unchanged. */
     .tab { font-size: clamp(.95rem, 1.35vw, 1.35rem); padding: 8px 14px; }
