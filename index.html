@@ -1635,6 +1635,27 @@ input[type='checkbox'] { display: none; }
                     if (message) modal(localizeServerMessage(message));
 	            }
             }
+
+            // The ESP32 normally sends a translated hint key with each
+            // interface state.  The standalone PHP simulator predates that
+            // field, so provide the same stable i18n key locally when it is
+            // absent.  This keeps the simulator useful without duplicating
+            // translated text in JavaScript or changing the wire protocol.
+            function defaultInterfaceHint(interfaceName){
+                const hints = {
+                    system: "hint.system",
+                    Directory: "hint.directory",
+                    WebApplication: "hint.webapplication",
+                    USBMIDI: "hint.usbmidi",
+                    BLEMIDI: "hint.blemidi",
+                    DINMIDI: "hint.dinmidi",
+                    AppleMIDI: "hint.applemidi",
+                    sysOSC: "hint.sysosc",
+                    Artnet: "hint.artnet",
+                    "3PinDMX": "hint.threepindmx"
+                };
+                return hints[interfaceName] || "hint.interface";
+            }
             
             function postQuery(jsonObj, callbackF = null) {
               console.log("postQuery queued:", jsonObj);
@@ -2718,7 +2739,11 @@ input[type='checkbox'] { display: none; }
                 // --- State + details ---
                 const state = interfaceDef.state || "Unknown";
                 const details = interfaceDef.details || "";
-                const hint = interfaceDef.hint || "";
+                // Real firmware states may provide a context-specific hint
+                // (for example a Directory discovery summary).  Use the
+                // generic interface hint only for simulator/legacy payloads
+                // that do not include one.
+                const hint = interfaceDef.hint || defaultInterfaceHint(interfaceName);
                 const hintHelp = iface.querySelector(".interfaceHint");
                 if (hintHelp) {
                     hintHelp.setAttribute("message", hint);
