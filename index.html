@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
     <head>
         <!--<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -250,14 +251,7 @@ option.current-wifi {
 /* États / Badges */
 .enabled::after { content: "❌"; }
 
-/* i18n indicateur 
-i18n::after {
-    content: '⚆';
-    position: absolute; animation: light 1s infinite;
-}
-.clear-animation::after { animation: none; content: ''; }
-*/
-
+/* Disable the catalogue loading shimmer when a translation is ready. */
 .clear-animation::after { animation: none; }
 
 i18n {
@@ -313,7 +307,80 @@ input, select, .skelName, .stripProperty { width: 80%; }
     .interfaceName { font-size: 0; }
     .stripMask { font-size: 3vw; }
     .tab, input, select, button { font-size: 4vw;}
-    .navBut {margin-left: 10px; padding-left:10px; font-size: 3vmax}
+    /* Keep the profile actions large but visually centered on narrow screens.
+       The previous percentage width plus left padding made emoji glyphs drift
+       and overflow their buttons. */
+    #configBar .navBut {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+        width: clamp(2.8rem, 9vw, 4.5rem);
+        height: clamp(2.8rem, 9vw, 4.5rem);
+        margin: 0 .35vw;
+        padding: 0;
+        font-size: clamp(1.5rem, 5.5vw, 2.8rem);
+        line-height: 1;
+    }
+    /* Mobile profile selector: keep the editable name layered over the
+       select, while reserving only the arrow area on the right. */
+    #configBar .dropdown {
+        display: inline-block !important;
+        position: relative;
+        vertical-align: middle;
+        width: clamp(8rem, 18vw, 16rem);
+        height: clamp(2.8rem, 9vw, 4.5rem);
+    }
+    #configBar .dropdown select {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100% !important;
+        height: 100%;
+        margin: 0;
+        padding-right: 2.5rem;
+    }
+    #configBar .dropdown input {
+        position: absolute;
+        inset: 0 2.5rem 0 0;
+        z-index: 2;
+        width: auto;
+        height: 100%;
+        margin: 0;
+        padding: 0 .35rem;
+        border: 2px solid var(--input-border);
+        border-radius: var(--radius-xs);
+    }
+    /* Arrange the whole mobile toolbar on one compact baseline: profile,
+       four actions, then the theme control. */
+    #configBar {
+        display: grid;
+        grid-template-columns: auto minmax(7rem, 1fr) repeat(4, minmax(2.4rem, 1fr)) auto auto;
+        align-items: center;
+        gap: .35rem;
+        padding: .45rem;
+        /* #mobileMenuBtn is fixed on the right and overlays the toolbar.
+           Reserve its footprint so the last action and theme switch remain
+           visible and clickable. */
+        padding-right: clamp(4rem, 14vw, 7rem);
+    }
+    #configBar > label:first-child {
+        margin: 0 !important;
+        font-size: clamp(1rem, 4vw, 1.8rem) !important;
+    }
+    #configBar .navBut {
+        width: 100%;
+        min-width: 0;
+        margin: 0;
+    }
+    #configBar > i18n {
+        font-size: clamp(.7rem, 2.6vw, 1.1rem);
+        white-space: nowrap;
+    }
+    #configBar > .switch {
+        width: clamp(2.5rem, 8vw, 4rem);
+        height: clamp(1.7rem, 5vw, 2.5rem);
+    }
     .addButton, .closeStripButton, .property, .charPopupButton, .bankIcon, .bankCopy { font-size: 3vmax; }
     .trash-icon, .move-icon, .config-icon, .copy-icon { font-size: 4vmax; }
     .copy-icon { left: 6vw; }
@@ -334,6 +401,45 @@ input, select, .skelName, .stripProperty { width: 80%; }
     #waitingDiv {width: 70%;left: 15%}
     #waitingMsg, #waitingDiv .iconInterval {font-size: 5vmax;transform: translate(0, 20%)}
     #waitingMsg{transform: translate(0, -30%)}
+
+    /* Portrait phones need a second toolbar row: keep the profile selector
+       readable, then place the four actions and theme control underneath. */
+    @media (max-width: 480px) {
+        #configBar {
+            grid-template-columns: repeat(4, minmax(2.4rem, 1fr)) auto auto;
+            grid-template-rows: auto auto;
+            padding-right: clamp(3rem, 12vw, 5rem);
+        }
+        #configBar > label:first-child {
+            grid-column: 1;
+            grid-row: 1;
+        }
+        #configBar .dropdown {
+            grid-column: 2 / 7;
+            grid-row: 1;
+            width: 100%;
+        }
+        #configBar #exportBt { grid-column: 1; grid-row: 2; }
+        #configBar #loadBt { grid-column: 2; grid-row: 2; }
+        #configBar #deleteBt { grid-column: 3; grid-row: 2; }
+        #configBar #saveBt { grid-column: 4; grid-row: 2; }
+        #configBar > i18n {
+            grid-column: 5;
+            grid-row: 2;
+        }
+        #configBar > .switch {
+            grid-column: 6;
+            grid-row: 2;
+        }
+    }
+
+    /* In landscape mobile, keep the first action visually separated from
+       the profile dropdown without changing the compact portrait layout. */
+    @media (min-width: 481px) and (max-width: 730px) {
+        #configBar #exportBt {
+            margin-left: .6rem;
+        }
+    }
 }
 
 /* Desktop */
@@ -832,17 +938,14 @@ input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
 
 /* Mask & propriétés de strip */
 .stripMask {
-  width: 98%; height: 98%; background-color: var(--bg-4); color: #fff; z-index: 1000; justify-content: center; align-items: center;
+  width: 98%; height: 98%; background-color: var(--bg-4); z-index: 1000; justify-content: center; align-items: center;
   border: 2px solid var(--warn); border-radius: var(--radius-lg); color: var(--text);
 }
 .stripProperty, .skelName { width: 50%; display: block; justify-content: center; height: fit-content; align-items: center; }
 
 .closeStripButton {
   color: #fff; position: absolute; border-radius: var(--radius-xs);
-}
-
-.closeStripButton{
-    background-color: #4CAF50;  bottom: 0.5vmax; right:1vmax;
+  background-color: #4CAF50; bottom: 0.5vmax; right: 1vmax;
 }
 
 /* Bank header & actions */
@@ -1474,7 +1577,11 @@ input[type='checkbox'] { display: none; }
             	i18n.setLocale(lang);		
                 document.querySelectorAll('i18n')
             	.forEach((element) => {
-            	  element.innerHTML=i18n.gettext(element.id);
+	            	  // Most legacy entries use their DOM id as the catalogue key.
+	            	  // Responsive duplicates use a unique id plus data-i18n so
+	            	  // mobile and desktop can share the same translation.
+	            	  const key = element.dataset.i18n || element.id;
+	            	  element.innerHTML=i18n.gettext(key);
             	  element.classList.add('clear-animation');
                 });	
                 translateAssignements();
@@ -5192,7 +5299,7 @@ function removePopup(overlay) {
         <!--<div id="i18nloading" class="k-progress-line"></div>-->
        
         <div id="waitingDiv">  
-            <span class="iconInterval" style="margin-right:auto;">&</span>
+            <span class="iconInterval" style="margin-right:auto;">&amp;</span>
             <span id="waitingMsg">🚀 Startup...</span>
             <span class="iconInterval" style="margin-left:auto;">/</span>
         </div>    
@@ -5318,11 +5425,11 @@ function removePopup(overlay) {
                 ☰
                 <div id="mobileMenu" class="hide" >            
                     <ul class="menuContainer ">
-                        <li class="menuItem" onclick="_('one').checked=true"><i18n id="SYSTEM"></i18n></li>
-                        <li class="menuItem" onclick="_('two').checked=true"><i18n id="DEVICES"></i18n></li>
-                        <li class="menuItem" onclick="_('three').checked=true"><i18n id="BANKS"></i18n></li>                    
+                        <li class="menuItem" onclick="_('one').checked=true"><i18n id="mobileSystemLabel" data-i18n="SYSTEM"></i18n></li>
+                        <li class="menuItem" onclick="_('two').checked=true"><i18n id="mobileDevicesLabel" data-i18n="DEVICES"></i18n></li>
+                        <li class="menuItem" onclick="_('three').checked=true"><i18n id="mobileBanksLabel" data-i18n="BANKS"></i18n></li>                    
                         <li class="menuItemDivider"></li>
-                        <li class="menuItemClose"><i18n id="Close"></i18n></li>
+                        <li class="menuItemClose"><i18n id="mobileMenuCloseLabel" data-i18n="Close"></i18n></li>
                     </ul>                
                 </div>                 
             </div>
@@ -5332,7 +5439,7 @@ function removePopup(overlay) {
                 <ul  class="menuContainer">
                     <li class="menuItemTitle">Choose widget shape to drop</li>
                     <li class="menuItemDivider"></li>
-                    <li class="menuItemClose"><i18n id="Close"></i18n></li>
+                    <li class="menuItemClose"><i18n id="stripMenuCloseLabel" data-i18n="Close"></i18n></li>
                 </ul>
             </div>
 
@@ -5344,15 +5451,15 @@ function removePopup(overlay) {
                 <div class="tabs" id="topTabs">
                     <label class="tab" id="one-tab" for="one">
                         <span wizard="show" style="font-size:4vw">❶</span>
-                        <span wizard="hide"><i18n id="SYSTEM"></i18n></span>
+                        <span wizard="hide"><i18n id="tabSystemLabel" data-i18n="SYSTEM"></i18n></span>
                     </label>
                     <label class="tab" id="two-tab" for="two">
                         <span wizard="show" style="font-size:4vw">❷</span>
-                        <span wizard="hide"><i18n id="DEVICES"></i18n></span>
+                        <span wizard="hide"><i18n id="tabDevicesLabel" data-i18n="DEVICES"></i18n></span>
                     </label>                    
                     <label class="tab" id="three-tab" for="three">
                         <span wizard="show" style="font-size:4vw">❸</span>
-                        <span wizard="hide"><i18n id="BANKS"></i18n></span>
+                        <span wizard="hide"><i18n id="tabBanksLabel" data-i18n="BANKS"></i18n></span>
                     </label>
 
                 </div>
@@ -5685,7 +5792,7 @@ function removePopup(overlay) {
                                                         <div class="collapsible-content">
                                                           <div id="sysexEntries" regex="sysex256"></div>
                                                           <p><button class="addButton" style="float: left" onclick="addEntry(_('sysexEntries'))">➕ </button></p>
-                                                          <p><button style="float: right" onclick="saveLibrary(_('sysexEntries'),sysexLibfile)">💾<i18n id="publish"></i18n></button>
+                                                          <p><button style="float: right" onclick="saveLibrary(_('sysexEntries'),sysexLibfile)">💾<i18n id="publishSysexLabel" data-i18n="publish"></i18n></button></p>
                                                         </div>
                                                     </div>                                                    
                                                     
@@ -5695,7 +5802,7 @@ function removePopup(overlay) {
                                                         <div class="collapsible-content">
                                                           <div id="oscEntries" regex="osc128"></div>
                                                           <p><button  class="addButton" style="float: left" onclick="addEntry(_('oscEntries'))">➕ </button></p>
-                                                          <p><button style="float: right" onclick="saveLibrary(_('oscEntries'),oscLibfile)">💾<i18n id="publish"></i18n></button>
+                                                          <p><button style="float: right" onclick="saveLibrary(_('oscEntries'),oscLibfile)">💾<i18n id="publishOscLabel" data-i18n="publish"></i18n></button></p>
                                                         </div>
                                                     </div>                                                    
                                                
