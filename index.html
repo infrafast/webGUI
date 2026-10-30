@@ -338,50 +338,28 @@ input, select, .skelName, .stripProperty { width: 80%; }
 
 /* Desktop */
 @media only screen and (min-device-width: 731px) {
-    body { font-size: clamp(12px, .72vw, 16px); }
-    .interfaceCfgContent { font-size: .9rem; }
-    .bigIcon { font-size: clamp(3rem, 8vw, 9rem); }
-    .stripMask, .tooltip .tooltiptext { font-size: .85rem; }
-    .closeStripButton, .property, .charPopupButton, .fsl-accordion-container, .trash-icon, .move-icon, .config-icon, .copy-icon, .bankIcon, .bankCopy, .bankName { font-size: clamp(.85rem, .9vw, 1.2rem); }
-    #bankNavigator {
-        display: flex;
-        width: 100%;
-        height: 64px;
-        gap: 4px;
-    }
-    #bankNavigator > .bankSelector,
-    #bankNavigator > .newBank {
-        flex: 1 1 0;
-        min-width: 0;
-    }
-    #bankNavigator > .bankSelector > .tooltip {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-    #bankNavigator .bankName {
-        width: 100%;
-        min-width: 0;
-        margin-left: 0;
-    }
-    /* Keep the main desktop tabs readable without letting their labels
-       dominate the interface on wide screens. Mobile sizing is unchanged. */
-    .tab { font-size: clamp(.95rem, 1.35vw, 1.35rem); padding: 8px 14px; }
+    .interfaceCfgContent { font-size:1vw}
+    .bigIcon { font-size: 10vw; }
+    .stripMask, .tooltip .tooltiptext { font-size: 1vw; }
+    .closeStripButton, .property, .charPopupButton, .fsl-accordion-container, .trash-icon, .move-icon, .config-icon, .copy-icon, .bankIcon, .bankCopy,    .bankName { font-size: 1.5vmax; }
+    #bankNavigator{display: flex;height: 64px;}
+    .tab { font-size: 2.5vw; }
     .copy-icon { left: 2.5vw; }
-    input, select, button { font-size: clamp(.85rem, .9vw, 1.1rem); height: clamp(2rem, 2.2vw, 2.8rem); }
+    input, select, button { font-size: 1.5vw; height: 3vw; }
     .grid-item { border: 1px dashed var(--dash-light); }
     .twoColumn { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .help::before { font-size: .8rem; }
-    .widgetMask, .lbl-toggle { font-size: clamp(.9rem, 1vw, 1.2rem); }
+    .help::before { font-size: 1vw; }
+    .widgetMask, .lbl-toggle { font-size: 1.5vw; }
     .dropdown input { width : 85%; margin-left:1px}
-    .widgetLabel {max-width: 6vw; font-size:.8rem;}
+    .widgetLabel {max-width: 6vw; font-size:1vw;}
     .led {    width: 4vmin; height: 4vmin;  }
     .mobileMenuOn {display: none;}
     .menuItem, .menuItemClose, .menuItemTitle {font-size: 3vmin; }
     .wizBtn{font-size:6vmin;}
     /*.bank {justify-content: space-evenly;}*/
     #flexibleGridZone {height: max(30vh, 30vw);}
-    .stripProperty, .skelName {font-size: .8rem;}
-    .popup-box{font-size: clamp(1rem, 1.4vw, 1.6rem);}
+    .stripProperty, .skelName {font-size: 1vw;}
+    .popup-box{font-size: 2vmax;}
     #waitingDiv {width: 20%; left: 40%}
     #waitingMsg, #waitingDiv .iconInterval {font-size: 2vmax;transform: translate(0, 20%)} 
     #waitingMsg{transform: translate(0, -50%)}
@@ -617,13 +595,8 @@ input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
 /* Tooltips */
 .tooltip { position: relative; display: inline-block; }
 .tooltip .tooltiptext {
-  z-index: 2000; visibility: hidden; background: var(--tooltip-bg); color: var(--tooltip-text);
-  text-align: center; border-radius: var(--radius-xs); padding: 5px;
-  position: fixed; left: 0; top: 0; margin: 0;
-  max-width: min(24rem, calc(100vw - 16px));
-  white-space: normal; pointer-events: none;
-  transform: translate(-50%, calc(-100% - 8px));
-  opacity: 0; transition: opacity .3s;
+  z-index: 3;visibility: hidden; background: var(--tooltip-bg); color: var(--tooltip-text);
+  text-align: center; border-radius: var(--radius-xs); padding: 5px; position: absolute; bottom: -80%; left: 50%; margin-left: -50px; opacity: 0; transition: opacity .3s;
 }
 .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
@@ -1390,7 +1363,6 @@ input[type='checkbox'] { display: none; }
                 initBanks();
                 initIconTags();
                 initHelpers();
-                initTooltips();
                 
                 const host = window.location.host;
                 _("host").textContent = host;
@@ -1640,23 +1612,6 @@ input[type='checkbox'] { display: none; }
                 document.querySelectorAll('.help').forEach(bindHelper);
             }
 
-            // Position tooltips in viewport coordinates so they can escape
-            // scroll/overflow containers such as widget masks. Delegation
-            // also covers tooltip elements created after page initialization.
-            function initTooltips(){
-                if (window._intervalTooltipsInitialized) return;
-                window._intervalTooltipsInitialized = true;
-                document.addEventListener('mouseover', function(event){
-                    const tooltip = event.target.closest('.tooltip');
-                    if (!tooltip) return;
-                    const text = tooltip.querySelector('.tooltiptext');
-                    if (!text) return;
-                    const rect = tooltip.getBoundingClientRect();
-                    text.style.left = `${rect.left + rect.width / 2}px`;
-                    text.style.top = `${Math.max(8, rect.top - 8)}px`;
-                });
-            }
-
             // Bind both static help elements and interface templates created
             // dynamically after the initial page load.
             function localizeServerMessage(message){
@@ -1678,27 +1633,6 @@ input[type='checkbox'] { display: none; }
                     const message = this.getAttribute("message");
                     if (message) modal(localizeServerMessage(message));
 	            }
-            }
-
-            // The ESP32 normally sends a translated hint key with each
-            // interface state.  The standalone PHP simulator predates that
-            // field, so provide the same stable i18n key locally when it is
-            // absent.  This keeps the simulator useful without duplicating
-            // translated text in JavaScript or changing the wire protocol.
-            function defaultInterfaceHint(interfaceName){
-                const hints = {
-                    system: "hint.system",
-                    Directory: "hint.directory",
-                    WebApplication: "hint.webapplication",
-                    USBMIDI: "hint.usbmidi",
-                    BLEMIDI: "hint.blemidi",
-                    DINMIDI: "hint.dinmidi",
-                    AppleMIDI: "hint.applemidi",
-                    sysOSC: "hint.sysosc",
-                    Artnet: "hint.artnet",
-                    "3PinDMX": "hint.threepindmx"
-                };
-                return hints[interfaceName] || "hint.interface";
             }
             
             function postQuery(jsonObj, callbackF = null) {
@@ -2783,11 +2717,7 @@ input[type='checkbox'] { display: none; }
                 // --- State + details ---
                 const state = interfaceDef.state || "Unknown";
                 const details = interfaceDef.details || "";
-                // Real firmware states may provide a context-specific hint
-                // (for example a Directory discovery summary).  Use the
-                // generic interface hint only for simulator/legacy payloads
-                // that do not include one.
-                const hint = interfaceDef.hint || defaultInterfaceHint(interfaceName);
+                const hint = interfaceDef.hint || "";
                 const hintHelp = iface.querySelector(".interfaceHint");
                 if (hintHelp) {
                     hintHelp.setAttribute("message", hint);
