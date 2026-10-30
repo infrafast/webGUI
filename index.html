@@ -338,28 +338,29 @@ input, select, .skelName, .stripProperty { width: 80%; }
 
 /* Desktop */
 @media only screen and (min-device-width: 731px) {
-    .interfaceCfgContent { font-size:1vw}
-    .bigIcon { font-size: 10vw; }
-    .stripMask, .tooltip .tooltiptext { font-size: 1vw; }
-    .closeStripButton, .property, .charPopupButton, .fsl-accordion-container, .trash-icon, .move-icon, .config-icon, .copy-icon, .bankIcon, .bankCopy,    .bankName { font-size: 1.5vmax; }
+    body { font-size: clamp(12px, .72vw, 16px); }
+    .interfaceCfgContent { font-size: .9rem; }
+    .bigIcon { font-size: clamp(3rem, 8vw, 9rem); }
+    .stripMask, .tooltip .tooltiptext { font-size: .85rem; }
+    .closeStripButton, .property, .charPopupButton, .fsl-accordion-container, .trash-icon, .move-icon, .config-icon, .copy-icon, .bankIcon, .bankCopy, .bankName { font-size: clamp(.85rem, .9vw, 1.2rem); }
     #bankNavigator{display: flex;height: 64px;}
     .tab { font-size: 2.5vw; }
     .copy-icon { left: 2.5vw; }
-    input, select, button { font-size: 1.5vw; height: 3vw; }
+    input, select, button { font-size: clamp(.85rem, .9vw, 1.1rem); height: clamp(2rem, 2.2vw, 2.8rem); }
     .grid-item { border: 1px dashed var(--dash-light); }
     .twoColumn { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .help::before { font-size: 1vw; }
-    .widgetMask, .lbl-toggle { font-size: 1.5vw; }
+    .help::before { font-size: .8rem; }
+    .widgetMask, .lbl-toggle { font-size: clamp(.9rem, 1vw, 1.2rem); }
     .dropdown input { width : 85%; margin-left:1px}
-    .widgetLabel {max-width: 6vw; font-size:1vw;}
+    .widgetLabel {max-width: 6vw; font-size:.8rem;}
     .led {    width: 4vmin; height: 4vmin;  }
     .mobileMenuOn {display: none;}
     .menuItem, .menuItemClose, .menuItemTitle {font-size: 3vmin; }
     .wizBtn{font-size:6vmin;}
     /*.bank {justify-content: space-evenly;}*/
     #flexibleGridZone {height: max(30vh, 30vw);}
-    .stripProperty, .skelName {font-size: 1vw;}
-    .popup-box{font-size: 2vmax;}
+    .stripProperty, .skelName {font-size: .8rem;}
+    .popup-box{font-size: clamp(1rem, 1.4vw, 1.6rem);}
     #waitingDiv {width: 20%; left: 40%}
     #waitingMsg, #waitingDiv .iconInterval {font-size: 2vmax;transform: translate(0, 20%)} 
     #waitingMsg{transform: translate(0, -50%)}
