@@ -598,8 +598,13 @@ input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
 /* Tooltips */
 .tooltip { position: relative; display: inline-block; }
 .tooltip .tooltiptext {
-  z-index: 3;visibility: hidden; background: var(--tooltip-bg); color: var(--tooltip-text);
-  text-align: center; border-radius: var(--radius-xs); padding: 5px; position: absolute; bottom: -80%; left: 50%; margin-left: -50px; opacity: 0; transition: opacity .3s;
+  z-index: 2000; visibility: hidden; background: var(--tooltip-bg); color: var(--tooltip-text);
+  text-align: center; border-radius: var(--radius-xs); padding: 5px;
+  position: fixed; left: 0; top: 0; margin: 0;
+  max-width: min(24rem, calc(100vw - 16px));
+  white-space: normal; pointer-events: none;
+  transform: translate(-50%, calc(-100% - 8px));
+  opacity: 0; transition: opacity .3s;
 }
 .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
@@ -1366,6 +1371,7 @@ input[type='checkbox'] { display: none; }
                 initBanks();
                 initIconTags();
                 initHelpers();
+                initTooltips();
                 
                 const host = window.location.host;
                 _("host").textContent = host;
@@ -1613,6 +1619,23 @@ input[type='checkbox'] { display: none; }
             
             function initHelpers(){
                 document.querySelectorAll('.help').forEach(bindHelper);
+            }
+
+            // Position tooltips in viewport coordinates so they can escape
+            // scroll/overflow containers such as widget masks. Delegation
+            // also covers tooltip elements created after page initialization.
+            function initTooltips(){
+                if (window._intervalTooltipsInitialized) return;
+                window._intervalTooltipsInitialized = true;
+                document.addEventListener('mouseover', function(event){
+                    const tooltip = event.target.closest('.tooltip');
+                    if (!tooltip) return;
+                    const text = tooltip.querySelector('.tooltiptext');
+                    if (!text) return;
+                    const rect = tooltip.getBoundingClientRect();
+                    text.style.left = `${rect.left + rect.width / 2}px`;
+                    text.style.top = `${Math.max(8, rect.top - 8)}px`;
+                });
             }
 
             // Bind both static help elements and interface templates created
