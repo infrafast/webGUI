@@ -363,6 +363,37 @@ input, select, .skelName, .stripProperty { width: 80%; }
         min-width: 0;
         margin-left: 0;
     }
+    /* Keep the editable profile name over the selector.  The select remains
+       underneath so its arrow stays visible on the right; only the editable
+       text area is layered above it. */
+    #configBar .dropdown {
+        display: inline-block !important;
+        position: relative;
+        vertical-align: middle;
+        width: min(52vw, 620px);
+        height: clamp(2rem, 2.2vw, 2.8rem);
+    }
+    #configBar .dropdown select {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100% !important;
+        height: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        padding-right: clamp(3.2rem, 5vw, 4.6rem);
+    }
+    #configBar .dropdown input {
+        position: absolute;
+        inset: 0 clamp(3.2rem, 5vw, 4.6rem) 0 0;
+        z-index: 2;
+        width: auto;
+        min-width: 0;
+        height: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        border-radius: var(--radius-xs);
+    }
     /* Keep the main desktop tabs readable without letting their labels
        dominate the interface on wide screens. Mobile sizing is unchanged. */
     .tab { font-size: clamp(.95rem, 1.35vw, 1.35rem); padding: 8px 14px; }
@@ -3199,8 +3230,16 @@ input[type='checkbox'] { display: none; }
                 feedBanks(banksJson);
                 feedShortcuts();
                 //_l(JSON.stringify(banksJson),"darkgrey");
-                hideOrShowZoom();                
-                zoomGrid(_("zoom").value);                
+                refreshBanksZoom();
+            }
+
+            // Keep the zoom control and the freshly rebuilt bank grids in sync.
+            // The wizard's "Let's go" action also calls feedBanks() directly,
+            // so this synchronization must be reusable outside banks().
+            function refreshBanksZoom(){
+                hideOrShowZoom();
+                const zoom = _("zoom");
+                if (zoom) zoomGrid(zoom.value);
             }
             
             function initBanks(){
@@ -5730,7 +5769,7 @@ function removePopup(overlay) {
                                 <div style="color: silver; font-size:3vmin" wizard="show" index="hide">
                                     <i18n id="Explain last wizard step"></i18n>
                                 </div>
-                                <button onclick="_('wizard').checked = false; exposeOrHideWizard(); feedBanks(banksJson);"><i18n id="Let's go"></i18n></button>
+                                <button onclick="_('wizard').checked = false; exposeOrHideWizard(); feedBanks(banksJson); refreshBanksZoom();"><i18n id="Let's go"></i18n></button>
 
                             </div>
                         </div>
