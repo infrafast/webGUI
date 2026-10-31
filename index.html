@@ -373,9 +373,12 @@ input, select, .skelName, .stripProperty { width: 80%; }
         min-width: 0;
         margin: 0;
     }
-    #configBar > i18n {
+    #configBar > .themeIcon {
         font-size: clamp(.7rem, 2.6vw, 1.1rem);
         white-space: nowrap;
+        line-height: 1;
+        text-align: center;
+        user-select: none;
     }
     #configBar > .switch {
         width: clamp(2.5rem, 8vw, 4rem);
@@ -423,7 +426,7 @@ input, select, .skelName, .stripProperty { width: 80%; }
         #configBar #loadBt { grid-column: 2; grid-row: 2; }
         #configBar #deleteBt { grid-column: 3; grid-row: 2; }
         #configBar #saveBt { grid-column: 4; grid-row: 2; }
-        #configBar > i18n {
+        #configBar > .themeIcon {
             grid-column: 5;
             grid-row: 2;
         }
@@ -436,6 +439,15 @@ input, select, .skelName, .stripProperty { width: 80%; }
     /* In landscape mobile, keep the first action visually separated from
        the profile dropdown without changing the compact portrait layout. */
     @media (min-width: 481px) and (max-width: 730px) {
+        #configBar {
+            /* Keep the whole toolbar on one line in landscape mode. */
+            grid-template-columns: auto minmax(6rem, 1fr) repeat(4, minmax(2.1rem, 3.4rem)) auto auto;
+            gap: .2rem;
+            padding-right: clamp(3rem, 9vw, 5rem);
+        }
+        #configBar .dropdown {
+            width: clamp(6rem, 16vw, 11rem);
+        }
         #configBar #exportBt {
             margin-left: .6rem;
         }
@@ -445,6 +457,34 @@ input, select, .skelName, .stripProperty { width: 80%; }
 /* Desktop */
 @media only screen and (min-device-width: 731px) {
     body { font-size: clamp(12px, .72vw, 16px); }
+    #configBar {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: .4rem;
+        overflow: hidden;
+    }
+    #configBar > label:first-child,
+    #configBar > .themeIcon,
+    #configBar > .switch {
+        flex: 0 0 auto;
+    }
+    #configBar .dropdown {
+        flex: 1 1 auto;
+        width: min(42vw, 620px);
+        min-width: 7rem;
+    }
+    #configBar .navBut {
+        flex: 0 0 clamp(2.5rem, 4vw, 4.5rem);
+        width: auto;
+        margin: 0;
+    }
+    #configBar > .themeIcon {
+        white-space: nowrap;
+        line-height: 1;
+        text-align: center;
+        user-select: none;
+    }
     .interfaceCfgContent { font-size: .9rem; }
     .bigIcon { font-size: clamp(3rem, 8vw, 9rem); }
     .stripMask, .tooltip .tooltiptext { font-size: .85rem; }
@@ -476,7 +516,7 @@ input, select, .skelName, .stripProperty { width: 80%; }
         display: inline-block !important;
         position: relative;
         vertical-align: middle;
-        width: min(52vw, 620px);
+        width: min(42vw, 620px);
         height: clamp(2rem, 2.2vw, 2.8rem);
     }
     #configBar .dropdown select {
@@ -5404,7 +5444,7 @@ function removePopup(overlay) {
                         <button title="Delete" id="deleteBt" disabled onclick="deleteConfig();" class="navBut">🗑</button>
                         <button title="Save" id="saveBt" disabled onclick="transmit('save',currentConfig.value);" class="navBut">💾</button>
 
-                        <i18n id="Switch theme"></i18n>                                                    
+                        <span class="themeIcon" title="☀ / ☾" aria-label="☀ / ☾">☀︎ / ☾</span>
                         <label class="switch">
                             <input type="checkbox" onChange="switchTheme()" >
                             <div class="slider"></div>
